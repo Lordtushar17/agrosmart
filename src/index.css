@@ -1,0 +1,273 @@
+@import "tailwindcss";
+
+/* ----------------- Layer: components ----------------- */
+@layer components {
+  .card-base {
+    @apply bg-white rounded-lg shadow-sm p-5 transition-transform duration-150;
+  }
+  .card-base:hover {
+    @apply shadow-xl -translate-y-1;
+  }
+
+  /* New: glass-style card */
+  .card-glass {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    @apply rounded-lg shadow-md;
+  }
+
+  /* New: accent label utility */
+  .label-accent {
+    @apply text-green-600 font-semibold;
+  }
+
+  /* New: fade-in animation utility */
+  .fade-in {
+    animation: fadeIn 0.45s ease both;
+  }
+}
+
+/* ----------------- Global HTML/BODY ----------------- */
+html,
+body,
+#root {
+  height: 100%;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: transparent;
+  color: #0f172a; /* slate-900 */
+  @apply antialiased;
+}
+
+/* ----------------- Container surface ----------------- */
+.container-surface {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.6));
+  box-shadow: 0 8px 30px rgba(2, 6, 23, 0.06);
+  border-radius: 12px;
+}
+
+/* ----------------- Animations ----------------- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ----------------- Footer tweaks ----------------- */
+footer {
+  color: #475569; /* slate-600 */
+}
+
+/* Weather panel dynamic backgrounds */
+.weather-card {
+  position: relative;
+  overflow: hidden;
+  transition: background 0.6s ease;
+}
+
+.weather-sunny {
+  background: linear-gradient(135deg, #ffe259, #ffa751);
+}
+
+.weather-cloudy {
+  background: linear-gradient(135deg, #d7d2cc, #304352);
+}
+
+.weather-rainy {
+  background: linear-gradient(135deg, #667db6, #0082c8, #0082c8, #667db6);
+}
+
+/* NOTE: Removed the old ::before hover overlays (previous sun/cloud/rain effects)
+   so your new SVG effects (WeatherEffects.jsx) are the only hover visuals. */
+
+/* ---------- Utility animations ---------- */
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 15s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-cloud {
+    animation: drift 20s linear infinite;
+  }
+
+  @keyframes drift {
+    from { transform: translateX(-20px); }
+    to { transform: translateX(200px); }
+  }
+}
+
+/* ---------- Weather hover/top-right effect rules (SVG-based) ---------- */
+
+.weather-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* effect initial state: moved/transparent */
+.effect-top-right .sun-core,
+.effect-top-right .cloud-core,
+.effect-top-right .sun-rays,
+.effect-top-right .rain-lines,
+.effect-top-right .rain-lines line,
+.effect-top-right .cloud-core ellipse {
+  transform: translate(18px,-18px) scale(0.7);
+  opacity: 0;
+  transition: transform 360ms cubic-bezier(.2,.9,.2,1), opacity 360ms ease;
+  transform-origin: right top;
+}
+
+/* on hover of the card, bring effect into view */
+.weather-card:hover .effect-top-right .sun-core,
+.weather-card:hover .effect-top-right .cloud-core,
+.weather-card:hover .effect-top-right .sun-rays,
+.weather-card:hover .effect-top-right .rain-lines,
+.weather-card:hover .effect-top-right .cloud-core ellipse {
+  transform: translate(0,0) scale(1);
+  opacity: 1;
+}
+
+/* rotate rays slowly when visible */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.sun-rays {
+  transform-origin: center;
+  animation: spin-slow 10s linear infinite;
+}
+
+/* cloud drift while visible (slight left movement) */
+@keyframes cloud-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-18px); }
+}
+.effect-top-right .animate-cloud-drift {
+  animation: cloud-drift 8s linear infinite alternate;
+}
+
+/* rain lines are animated via SVG <animate>, ensure opacity shows */
+.effect-top-right .rain-lines {
+  opacity: 0;
+}
+.weather-card:hover .effect-top-right .rain-lines {
+  opacity: 1;
+}
+
+/* tweak for dark/cloudy backgrounds so cloud looks darker */
+.weather-cloudy .cloud-core ellipse,
+.weather-rainy .cloud-core ellipse {
+  fill: rgba(255,255,255,0.9);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+}
+
+/* adjust contrast for text when background is dark */
+.weather-rainy .text-gray-900,
+.weather-cloudy .text-gray-900 {
+  color: #0f172a;
+}
+
+/* ---- Rainy background: diagonal falling streaks ---- */
+.weather-rainy {
+  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+
+/* diagonal streaks: thin semi-transparent lines at -25deg */
+.weather-rainy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* angled repeating thin streaks */
+  background-image: repeating-linear-gradient(
+    -25deg,
+    rgba(255,255,255,0.18) 0px,
+    rgba(255,255,255,0.18) 2px,
+    transparent 2px,
+    transparent 26px
+  );
+  background-size: 200% 200%;
+  pointer-events: none;
+  /* move diagonally: translateY + translateX achieved with animating background-position */
+  animation: rain-diagonal 0.7s linear infinite;
+  mix-blend-mode: screen; /* makes streaks blend nicely */
+  opacity: 0.75;
+}
+
+/* Slight variation layer to add depth (lighter, slower) */
+.weather-rainy::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -25deg,
+    rgba(255,255,255,0.08) 0px,
+    rgba(255,255,255,0.08) 1px,
+    transparent 1px,
+    transparent 40px
+  );
+  animation: rain-diagonal-slow 1.25s linear infinite;
+  pointer-events: none;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+
+/* animation moves the background so streaks appear to fall diagonally down-left */
+@keyframes rain-diagonal {
+  from { background-position: 0 -10px; }
+  to   { background-position: -24px 40px; } /* moves diagonally */
+}
+@keyframes rain-diagonal-slow {
+  from { background-position: 0 0; }
+  to   { background-position: -36px 80px; }
+}
+
+/* make content text inside rainy card white and bold for contrast */
+.weather-rainy .relative.z-10,
+.weather-rainy h4,
+.weather-rainy h5,
+.weather-rainy span,
+.weather-rainy p,
+.weather-rainy .text-gray-600,
+.weather-rainy .text-gray-700,
+.weather-rainy .text-gray-900,
+.weather-rainy .font-medium {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ensure forecast small cards inside the panel remain readable:
+   make them slightly translucent if needed (optional) */
+.weather-rainy .grid > div {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.08);
+  color: #fff !important;
+}
+.weather-cloudy .grid > div {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.12);
+  color: #0f172a !important;
+}
+/* make icons white for contrast */
+.weather-rainy .weather-icon,
+.weather-cloudy .weather-icon { 
+  filter: brightness(0) invert(1);
+} 
+
+/* debug helper — force show the slider (remove when fixed) */
+.fixed.inset-0.z-0 {
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
