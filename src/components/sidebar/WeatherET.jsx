@@ -38,8 +38,8 @@ export default function WeatherPanel({ weather }) {
 
   return (
     <Card
-      title="Weather"
-      className={`relative overflow-hidden weather-card hover:scale-[1.02] transition-transform duration-300 ${bgClass}`}
+      title={<span className="font-bold text-xl">Weather</span>}
+      className={`relative font-bold overflow-hidden weather-card hover:scale-[1.02] transition-transform duration-300 ${bgClass}`}
     >
       {/* TOP-RIGHT EFFECT: only the effects from WeatherEffects.jsx are rendered */}
       <div className="pointer-events-none">
@@ -62,7 +62,7 @@ export default function WeatherPanel({ weather }) {
 
       {/* Card content (above effects) */}
       <div className="relative z-10">
-        <h4 className="font-semibold mb-3">Weather</h4>
+        <h4 className="font-semibold mb-3"></h4>
 
         <div className="flex items-center justify-between text-sm mb-2">
           <span className="flex items-center gap-2 text-gray-600">

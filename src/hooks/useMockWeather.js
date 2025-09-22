@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 export function useMockWeather() {
   const [weather, setWeather] = useState({
-    condition: "Sunny",
+    condition: "Rainy",
     temp: 22,
     humidity: 72,
     wind: 2.4,
